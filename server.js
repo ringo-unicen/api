@@ -1,5 +1,7 @@
 var express = require('express');
 var bodyparser = require('body-parser');
+var glob = require('glob');
+var _ = require('lodash');
 
 console.log('Configuring application');
 
@@ -11,8 +13,10 @@ app.use(bodyparser.urlencoded({
 app.use(bodyparser.json());
 //app.use(methodOverride());
 
-app.use('/', function (req, res, next) {
-	res.json({text: 'Hola mundo'});
+glob('./routes/*.js', function (err, files) {
+	_.each(files, function (file) {
+		require(file)(app);
+	});
 });
 
 
