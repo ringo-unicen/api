@@ -1,3 +1,5 @@
 module.exports = function (app) {
-	console.log('Configuring /node routes');
+	app.route('/sla').get(function (req, res) {
+		res.json({text: 'Slas!'});
+	});
 };
