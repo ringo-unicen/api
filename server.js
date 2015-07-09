@@ -10,7 +10,7 @@ console.log('Configuring application');
 var app = express();
 
 app.use(bodyparser.urlencoded({
-	extended: true
+    extended: true
 }));
 app.use(bodyparser.json());
 app.use(cors());
@@ -18,17 +18,17 @@ app.use(cors());
 
 var files = glob.sync('./routes/*.js');
 _.each(files, function (file) {
-	require(file)(app);
+    require(file)(app);
 });
 
 app.use(function (err, req, res, next) {
-	console.log ('Error executing request: ', err);
-	res.status(400).json({message: err.message});
+    console.log ('Error executing request: ', err);
+    res.status(400).json({message: err.message});
 });
 
 app.use(morgan('combined'));
 
 app.listen(3000, function () {
-	console.log('App started successfully');
+    console.log('App started successfully');
 });
 
