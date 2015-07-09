@@ -3,6 +3,7 @@ var bodyparser = require('body-parser');
 var glob = require('glob');
 var _ = require('lodash');
 var morgan = require('morgan');
+var cors = require('cors');
 
 console.log('Configuring application');
 
@@ -12,6 +13,7 @@ app.use(bodyparser.urlencoded({
 	extended: true
 }));
 app.use(bodyparser.json());
+app.use(cors());
 //app.use(methodOverride());
 
 var files = glob.sync('./routes/*.js');
@@ -21,7 +23,7 @@ _.each(files, function (file) {
 
 app.use(function (err, req, res, next) {
 	console.log ('Error executing request: ', err);
-	next();
+	res.status(400).json({message: err.message});
 });
 
 app.use(morgan('combined'));
