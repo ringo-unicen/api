@@ -5,7 +5,7 @@ module.exports = function (app) {
 
     app.route('/nodeType')
     .get(_.partial(crudUtils.list, elasticsearch, 'nodeType'))
-    .post(crudUtils.requireBodyAndName, _.partial(crudUtils.save, elasticsearch, 'nodeType'));
+    .post(crudUtils.requireBodyAndName, _.partial(crudUtils.save, elasticsearch, 'nodeType'), _.partial(crudUtils.respondEntity, 'nodeType'));
 
 
     app.route('/nodeType/:nodeTypeId')

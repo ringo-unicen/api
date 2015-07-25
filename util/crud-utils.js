@@ -1,5 +1,9 @@
 var _ = require('lodash');
 
+var placeInRequest = function (req, type, entity) {
+  req[type] = entity;  
+};
+
 exports.hitMapper = function (props, hit) {
     var result = _.pick(hit, props);
     _.merge(result, hit._source);
@@ -12,7 +16,7 @@ exports.requireBodyAndParams = function (params, req, res, next) {
     }
     var missing = _.difference(params, _.keys(req.body));
     if (missing.length > 0) {
-        return next('Missing required properties:' + missing);
+        return next(new Error('Missing required properties:' + missing));
     }
     next();
 };
@@ -65,7 +69,11 @@ exports.save = function (elasticsearch, type, req, res, next) {
         index: 'ringo',
         type: type,
         body: req.body
-    }).then(exports.populate(req.body)).then(res.jsonp.bind(res)).catch(next);
+    }).then(exports.populate(req.body)).then(_.partial(placeInRequest, req, type)).finally(next);
+};
+
+exports.respondEntity = function (type, req, res) {
+    res.jsonp(req[type]);  
 };
 
 exports.update = function (elasticsearch, type, req, res, next) {
@@ -79,6 +87,7 @@ exports.update = function (elasticsearch, type, req, res, next) {
 };
 
 exports.remove = function (elasticsearch, type, req, res, next) {
+    console.log('Removing', type, req[type]._id);
     elasticsearch.delete({
         index: 'ringo',
         type: type,

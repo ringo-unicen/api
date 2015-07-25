@@ -5,7 +5,7 @@ module.exports = function (app) {
 
     app.route('/sla')
     .get(_.partial(crudUtils.list, elasticsearch, 'sla'))
-    .post(crudUtils.requireBodyAndName, _.partial(crudUtils.save, elasticsearch, 'sla'));
+    .post(crudUtils.requireBodyAndName, _.partial(crudUtils.save, elasticsearch, 'sla'), _.partial(crudUtils.respondEntity, 'sla'));
 
     app.route('/sla/:slaId')
         .get(function (req, res) {
