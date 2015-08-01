@@ -1,0 +1,32 @@
+{
+    "mappings" : {
+        "sla" : {
+            "properties" : {
+                "name" : { "type" : "string"},
+                "color": { "type" : "string", "index": "not_analyzed"}
+            }
+        },
+        "nodeType" : {
+            "properties": {
+                "name" : {"type": "string"}
+            }
+        },
+        "node" : {
+            "properties": {
+                "nodeType": {"type": "string", "index" : "not_analyzed"},
+                "sla": {"type": "string", "index" : "not_analyzed"},
+                "state": {"type": "string"},
+                "vm": {"type": "object"}
+            }
+        },
+        "metric": {
+            "properties": {
+                "sla": {"type": "string", "index" : "not_analyzed"},
+                "node": {"type": "string", "index" : "not_analyzed"},
+                "type": {"type": "string"},
+                "value": {"type": "integer"},
+                "timestamp": {"type": "date"}
+            }
+        }
+    }
+}
