@@ -28,7 +28,8 @@ app.use(function (err, req, res, next) {
 
 app.use(morgan('combined'));
 
-app.listen(3000, function () {
-    console.log('App started successfully');
+var port = process.env.PORT || 3000;
+app.listen(port, function () {
+    console.log('App started successfully at port', port);
 });
 
