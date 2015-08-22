@@ -1,8 +1,6 @@
 FROM node:0.10
 MAINTAINER "Pablo Saavedra"
 
-RUN npm install -g grunt-cli
-
 RUN mkdir /app
 ADD package.json /app/package.json
 ADD util /app/util
