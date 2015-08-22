@@ -1,0 +1,13 @@
+api:
+  build: .
+  links:
+   - elastic:elastic
+  ports:
+   - "3000"
+  environment:
+   - ES_URL=elastic:9200
+elastic:
+  image: elasticsearch:latest
+  ports:
+   - "9200"
+
