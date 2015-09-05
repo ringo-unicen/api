@@ -3,7 +3,7 @@
 module.exports = function(grunt) {
 	// Unified Watch Object
 	var watchFiles = {
-		serverJS: ['app.js', 'routes/*.js', 'util/*.js']
+		serverJS: ['server.js', 'routes/*.js', 'util/*.js']
 	};
 
 	// Project Configuration
