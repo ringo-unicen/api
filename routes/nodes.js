@@ -4,10 +4,14 @@ module.exports = function (app) {
     var crudUtils = require('../util/crud-utils');
 
     var requiredParams = _.partial(crudUtils.requireBodyAndParams, ['sla', 'nodeType']);
+    var changeState = function (state, req, res, next) {
+        req.body.state = state;
+        next();
+    };
 
     app.route('/node')
     .get(_.partial(crudUtils.list, elasticsearch, 'node'))
-    .post(requiredParams, _.partial(crudUtils.save, elasticsearch, 'node'), function (req, res, next) {
+    .post(requiredParams, _.partial(changeState, 'CREATED'), _.partial(crudUtils.save, elasticsearch, 'node'), function (req, res, next) {
         var nodeManager = require('../util/node-manager');
         
         nodeManager.create(req.node._id, req.node.nodeType)
@@ -24,7 +28,7 @@ module.exports = function (app) {
             res.json(req.node);
         })
         .put(requiredParams, _.partial(crudUtils.update, elasticsearch, 'node'))
-        .delete(_.partial(crudUtils.remove, elasticsearch, 'node'));
+        .delete(_.partial(changeState, 'TERMINATED'), _.partial(crudUtils.update, elasticsearch, 'node'));
  
     app.route('/node/:nodeId/created')
         .post(function (req, res) {
@@ -36,7 +40,8 @@ module.exports = function (app) {
                 id: node._id,
                 body: {
                     doc: {
-                        vm: req.body
+                        vm: req.body,
+                        state: 'STARTED'
                     }
                 }
             }).then(function (response) {
@@ -46,5 +51,10 @@ module.exports = function (app) {
             });
         });
 
-    app.param('nodeId', _.partial(crudUtils.getObject, elasticsearch, 'node'));
+    app.param('nodeId', _.partial(crudUtils.getObject, elasticsearch, 'node'), function (req, res, next) {
+        if (req.node && req.node.state == 'TERMINATED') {
+            delete req.node;
+        }
+        next();
+    }, _.partial(crudUtils.notFound, 'node'));
 };

@@ -103,3 +103,10 @@ exports.search = function(elasticsearch, type, req, res, next) {
         body: req.body
     }).then(res.jsonp.bind(res)).catch(next);
 };
+
+exports.notFound = function (type, req, res, next) {
+    if (!req.type) {
+        return res.status(404).json({msg: type + ' not found'});
+    }
+    next();
+};

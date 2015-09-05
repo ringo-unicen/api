@@ -14,6 +14,6 @@ module.exports = function (app) {
         .put(crudUtils.requireBodyAndName, _.partial(crudUtils.update, elasticsearch, 'sla'))
         .delete(_.partial(crudUtils.remove, elasticsearch, 'sla'));
 
-    app.param('slaId', _.partial(crudUtils.getObject, elasticsearch, 'sla'));
+    app.param('slaId', _.partial(crudUtils.getObject, elasticsearch, 'sla'), _.partial(crudUtils.notFound, 'sla'));
 };
 
