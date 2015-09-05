@@ -16,6 +16,8 @@ module.exports = function (app) {
             }).finally(next);
     }, _.partial(crudUtils.respondEntity, 'node'));
 
+    app.route('/node/search')
+        .put(_.partial(crudUtils.search, elasticsearch, 'node'));
 
     app.route('/node/:nodeId')
         .get(function (req, res) {
@@ -26,8 +28,22 @@ module.exports = function (app) {
  
     app.route('/node/:nodeId/created')
         .post(function (req, res) {
-            console.log('Received creation callback for node', req.node, 'with info', req.body);
-            res.status(200).send({message: 'OK'});
+            console.log('Received creation callback for node', req.node);
+            var node = req.node;
+            elasticsearch.update({
+                index: 'ringo',
+                type: 'node',
+                id: node._id,
+                body: {
+                    doc: {
+                        vm: req.body
+                    }
+                }
+            }).then(function (response) {
+                res.status(200).send({message: 'OK'});
+            }).catch(function (error) {
+                res.status(500).jsonp({error: JSON.stringify(error)});
+            });
         });
 
     app.param('nodeId', _.partial(crudUtils.getObject, elasticsearch, 'node'));
