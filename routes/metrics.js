@@ -8,11 +8,5 @@ module.exports = function (app) {
 
     app.route('/metrics')
         .post(requiredParams,  _.partial(crudUtils.save, elastic, 'metric'), _.partial(crudUtils.respondEntity, 'metric'))
-        .get(function(req, res, next) {
-            elastic.search({
-                index: 'ringo',
-                type: 'metric',
-                body: req.body
-            }).then(res.jsonp.bind(res)).catch(next);
-        });
+        .put(_.partial(crudUtils.search, elastic, 'metric'));
 };

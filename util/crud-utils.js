@@ -94,3 +94,12 @@ exports.remove = function (elasticsearch, type, req, res, next) {
         id: req[type]._id
     }).then(res.json.bind(res)).catch(next);
 };
+
+exports.search = function(elasticsearch, type, req, res, next) {
+    console.log('Searching for', type, 'with query', req.body);
+    elasticsearch.search({
+        index: 'ringo',
+        type: type,
+        body: req.body
+    }).then(res.jsonp.bind(res)).catch(next);
+};
