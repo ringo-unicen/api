@@ -15,5 +15,5 @@ module.exports = function (app) {
         .put(crudUtils.requireBodyAndName, _.partial(crudUtils.update, elasticsearch, 'nodeType'))
         .delete(_.partial(crudUtils.remove, elasticsearch, 'nodeType'));
 
-    app.param('nodeTypeId', _.partial(crudUtils.getObject, elasticsearch, 'nodeType'), , _.partial(crudUtils.notFound, 'nodeType'));
+    app.param('nodeTypeId', _.partial(crudUtils.getObject, elasticsearch, 'nodeType'), _.partial(crudUtils.notFound, 'nodeType'));
 };
