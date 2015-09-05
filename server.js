@@ -19,7 +19,7 @@ _.each(files, function (file) {
 	require(file)(app);
 });
 
-app.use(function (req, res, next, err) {
+app.use(function (err, req, res, next) {
 	console.log ('Error executing request: ', err);
 	next();
 });
