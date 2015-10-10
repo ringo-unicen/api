@@ -1,7 +1,9 @@
+/// <reference path="../typings/bluebird/bluebird.d.ts"/>
 module.exports = function (app) {
     var elasticsearch = require('../util/elasticsearch.js');
     var _ = require('lodash');
     var crudUtils = require('../util/crud-utils');
+    var bluebird = require('bluebird');
 
     var requiredParams = _.partial(crudUtils.requireBodyAndParams, ['sla', 'nodeType']);
     var changeState = function (state, req, res, next) {
@@ -34,22 +36,62 @@ module.exports = function (app) {
         .post(function (req, res) {
             console.log('Received creation callback for node', req.node);
             var node = req.node;
-            elasticsearch.update({
-                index: 'ringo',
-                type: 'node',
-                id: node._id,
-                body: {
-                    doc: {
-                        vm: req.body,
-                        state: 'STARTED'
-                    }
-                }
-            }).then(function (response) {
-                res.status(200).send({message: 'OK'});
-            }).catch(function (error) {
-                res.status(500).jsonp({error: JSON.stringify(error)});
-            });
-        });
+
+            //Pick a random node
+            var existingPromise = elasticsearch.search({
+                    index: 'ringo',
+                    type: 'node'
+                })
+                .then(_.property('hits'))
+                .then(_.property('hits'))
+                .then(_.first);
+
+
+            bluebird.join(node, existingPromise)
+                .spread(function (node, existing) {
+                    var nextNode = existing.next;
+                    //Set next on the existing node to the new node
+                    //TODO Make sure the IP is there
+                    existing.next = req.body.ip;
+                    //Set next on the new node to the existing node's next
+                    node.next = nextNode;
+                    //Update the new node
+                    return elasticsearch.update({
+                        index: 'ringo',
+                        type: 'node',
+                        id: node._id,
+                        body: {
+                            doc: {
+                                vm: req.body,
+                                next: node.next
+                            }
+                        }
+                    }).then(function () {
+                        //Configure the agent
+                    }).then(function () {
+                        //Start the agent
+                    }).then(function () {
+                        //Configure the agent for the existing node
+                    }).then(function () {
+                        //Update existing node and set new node to started.
+                        elasticsearch.update({
+                            index: 'ringo',
+                            type: 'node',
+                            id: node._id,
+                            body: {
+                                doc: {
+                                    vm: req.body,
+                                    state: 'STARTED'
+                                }
+                            }
+                        });
+                    });
+                }).then(function (response) {
+                    res.status(200).send({message: 'OK'});
+                }).catch(function (error) {
+                    res.status(500).jsonp({error: JSON.stringify(error)});
+                });
+    });
 
     app.param('nodeId', _.partial(crudUtils.getObject, elasticsearch, 'node'), function (req, res, next) {
         if (req.node && req.node.state == 'TERMINATED') {
